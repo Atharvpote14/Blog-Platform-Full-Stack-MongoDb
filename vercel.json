@@ -1,27 +1,23 @@
 {
-    "services": {
-        "frontend": {
-            "root": ".",
-            "framework": "nextjs"
-        },
-        "backend": {
-            "root": "backend"
-        }
+  "services": {
+    "web": {
+      "root": "."
     },
-    "rewrites": [
-        {
-            "source": "/api/backend(/.*)?",
-            "destination": {
-                "type": "service",
-                "service": "backend"
-            }
-        },
-        {
-            "source": "/(.*)",
-            "destination": {
-                "type": "service",
-                "service": "frontend"
-            }
-        }
-    ]
+    "api": {
+      "root": "backend/",
+      "runtime": "node",
+      "framework": "express",
+      "entrypoint": "server.js"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": { "service": "api" }
+    },
+    {
+      "source": "/(.*)",
+      "destination": { "service": "web" }
+    }
+  ]
 }
