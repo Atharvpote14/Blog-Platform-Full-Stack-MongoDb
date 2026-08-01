@@ -181,7 +181,7 @@ export default function BlogDetailPage() {
               </Button>
             </>
           )}
-          <LikeButton blogId={blog._id} initialLikes={blog.likes} />
+          <LikeButton blogId={blog._id} initialLikes={blog.likes ?? []} />
           <Button variant="secondary" size="md" onClick={handleShare} aria-label="Share this post">
             <Share2 className="h-4 w-4" />
             <span className="hidden sm:inline">Share</span>
@@ -207,10 +207,10 @@ export default function BlogDetailPage() {
       </div>
 
       <div className="mt-12 flex items-center justify-center border-t border-line pt-10">
-        <LikeButton blogId={blog._id} initialLikes={blog.likes} />
+        <LikeButton blogId={blog._id} initialLikes={blog.likes ?? []} />
       </div>
 
-      <CommentSection blogId={blog._id} initialComments={blog.comments} />
+      <CommentSection blogId={blog._id} initialComments={blog.comments ?? []} />
 
       <ConfirmDialog
         open={confirmOpen}

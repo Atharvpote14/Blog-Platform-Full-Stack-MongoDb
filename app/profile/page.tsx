@@ -147,7 +147,10 @@ export default function ProfilePage() {
 
   if (!user) return <Skeleton className="h-64 w-full rounded-3xl" />;
 
-  const totalLikes = myBlogs.reduce((sum, blog) => sum + blog.likes.length, 0);
+  const totalLikes = myBlogs.reduce(
+    (sum, blog) => sum + (blog.likes?.length ?? 0),
+    0
+  );
 
   return (
     <ProtectedRoute>
@@ -278,7 +281,7 @@ export default function ProfilePage() {
                     </p>
                     <p className="mt-0.5 text-xs text-muted">
                       {blog.category} · {formatDate(blog.createdAt)} ·{" "}
-                      {blog.likes.length} likes
+                      {blog.likes?.length ?? 0} likes
                     </p>
                   </div>
                   <span className="shrink-0 text-xs font-semibold text-primary">

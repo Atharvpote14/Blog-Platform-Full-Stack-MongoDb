@@ -62,7 +62,10 @@ export default function DashboardPage() {
     load();
   }, [load]);
 
-  const totalLikes = myBlogs.reduce((sum, blog) => sum + blog.likes.length, 0);
+  const totalLikes = myBlogs.reduce(
+    (sum, blog) => sum + (blog.likes?.length ?? 0),
+    0
+  );
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -208,7 +211,7 @@ export default function DashboardPage() {
                     {formatDate(blog.createdAt)} ·{" "}
                     <span className="inline-flex items-center gap-0.5 text-danger">
                       <Heart className="h-3 w-3" />
-                      {formatCount(blog.likes.length)}
+                      {formatCount(blog.likes?.length ?? 0)}
                     </span>
                   </p>
                 </Link>
@@ -265,7 +268,7 @@ export default function DashboardPage() {
                     {blog.title}
                   </p>
                   <p className="mt-0.5 text-xs text-muted">
-                    {typeof blog.author === "string"
+                    {typeof blog.author === "string" || !blog.author
                       ? "Unknown"
                       : blog.author.name}{" "}
                     · {formatDate(blog.createdAt)}

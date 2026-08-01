@@ -15,7 +15,10 @@ interface LikeButtonProps {
   initialLikes: string[];
 }
 
-export function LikeButton({ blogId, initialLikes }: LikeButtonProps) {
+export function LikeButton({
+  blogId,
+  initialLikes = [],
+}: LikeButtonProps) {
   const { user } = useAuth();
   const router = useRouter();
   const [liked, setLiked] = useState(

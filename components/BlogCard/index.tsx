@@ -12,9 +12,13 @@ import { formatCount, formatDate, readingTime } from "@/utils/format";
 
 export function BlogCard({ blog, index = 0 }: { blog: Blog; index?: number }) {
   const authorName =
-    typeof blog.author === "string" ? "Unknown" : blog.author.name;
+    typeof blog.author === "string" || !blog.author
+      ? "Unknown"
+      : blog.author.name;
   const authorAvatar =
-    typeof blog.author === "string" ? undefined : blog.author.avatar;
+    typeof blog.author === "string" || !blog.author
+      ? undefined
+      : blog.author.avatar;
   const coverImage = resolveImageUrl(blog.coverImage);
 
   return (
@@ -78,7 +82,7 @@ export function BlogCard({ blog, index = 0 }: { blog: Blog; index?: number }) {
           </div>
           <span className="flex items-center gap-1 text-xs font-medium text-muted">
             <Heart className="h-3.5 w-3.5 text-danger" />
-            {formatCount(blog.likes.length)}
+            {formatCount(blog.likes?.length ?? 0)}
           </span>
         </div>
       </div>

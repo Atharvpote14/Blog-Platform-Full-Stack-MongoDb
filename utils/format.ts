@@ -1,16 +1,19 @@
 import axios from "axios";
 
-export function formatDate(date: string | Date): string {
+export function formatDate(date: string | Date | null | undefined): string {
+  if (!date) return "—";
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return "—";
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
-  }).format(new Date(date));
+  }).format(parsed);
 }
 
-export function readingTime(content: string): string {
+export function readingTime(content: string | null | undefined): string {
+  const words = (content ?? "").trim().split(/\s+/).filter(Boolean).length;
   const wordsPerMinute = 200;
-  const words = content.trim().split(/\s+/).length;
   const minutes = Math.max(1, Math.ceil(words / wordsPerMinute));
   return `${minutes} min read`;
 }
@@ -21,8 +24,8 @@ export function formatCount(count: number): string {
   return count.toString();
 }
 
-export function getInitials(name: string): string {
-  return name
+export function getInitials(name: string | null | undefined): string {
+  return (name ?? "")
     .trim()
     .split(/\s+/)
     .slice(0, 2)
