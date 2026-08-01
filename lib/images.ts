@@ -1,7 +1,7 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api";
+import { API_BASE_URL } from "@/services/api";
 
 export function apiOrigin(): string {
-  return API_BASE.replace(/\/api\/?$/, "");
+  return (API_BASE_URL ?? "").replace(/\/api\/?$/, "");
 }
 
 export function resolveImageUrl(src?: string | null): string {
@@ -9,5 +9,7 @@ export function resolveImageUrl(src?: string | null): string {
   const normalized = src.replace(/\\/g, "/");
   if (/^(https?:)?\/\//.test(normalized)) return normalized;
   if (/^(blob|data):/i.test(normalized)) return normalized;
-  return `${apiOrigin()}/${normalized.replace(/^\/+/, "")}`;
+  const origin = apiOrigin();
+  if (!origin) return normalized;
+  return `${origin}/${normalized.replace(/^\/+/, "")}`;
 }

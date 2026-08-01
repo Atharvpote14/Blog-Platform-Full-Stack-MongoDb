@@ -32,11 +32,37 @@ export function getInitials(name: string): string {
 
 export function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
-    const data = error.response?.data as { message?: string } | undefined;
+    const data = error.response?.data as
+      | { message?: string; errors?: { message?: string }[] }
+      | undefined;
+
+    if (data?.errors?.length) {
+      return data.errors
+        .map((e) => e.message)
+        .filter(Boolean)
+        .join(". ");
+    }
     if (data?.message) return data.message;
-    if (error.code === "ECONNABORTED") return "Request timed out. Please try again.";
-    if (!error.response) return "Cannot reach the server. Please try again later.";
-    return "Something went wrong. Please try again.";
+    if (error.code === "ECONNABORTED") {
+      return "Request timed out. Please try again.";
+    }
+    if (!error.response) {
+      return "Cannot reach the server. Please check your connection and try again.";
+    }
+    switch (error.response.status) {
+      case 401:
+        return "Your session has expired. Please log in again.";
+      case 403:
+        return "You don't have permission to do that.";
+      case 404:
+        return "The requested resource was not found.";
+      case 429:
+        return "Too many requests. Please try again later.";
+      case 500:
+        return "Something went wrong on our server. Please try again.";
+      default:
+        return "Something went wrong. Please try again.";
+    }
   }
   return "Unexpected error occurred.";
 }

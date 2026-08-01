@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -7,7 +8,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { toast } from "sonner";
 import { authApi } from "@/services/auth";
+import { SESSION_EXPIRED_EVENT } from "@/services/api";
 import type { LoginPayload, RegisterPayload, User } from "@/types";
 
 interface AuthContextValue {
@@ -22,6 +25,7 @@ interface AuthContextValue {
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -39,6 +43,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     restoreSession();
   }, [restoreSession]);
+
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      setUser(null);
+      toast.error("Your session has expired. Please log in again.");
+      if (window.location.pathname !== "/login") {
+        router.replace("/login");
+      }
+    };
+    window.addEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
+    return () => {
+      window.removeEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
+    };
+  }, [router]);
 
   const login = useCallback(async (payload: LoginPayload) => {
     const currentUser = await authApi.login(payload);
