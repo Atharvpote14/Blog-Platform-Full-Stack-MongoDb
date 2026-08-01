@@ -31,6 +31,7 @@ export function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
     <div className="relative w-full">
       <Search className="pointer-events-none absolute left-4 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted" />
       <input
+        suppressHydrationWarning
         type="search"
         value={input}
         onChange={(e) => setInput(e.target.value)}
@@ -40,6 +41,7 @@ export function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
       />
       {input && (
         <button
+          suppressHydrationWarning
           onClick={() => setInput("")}
           className="absolute right-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-muted transition-colors hover:bg-card hover:text-foreground"
           aria-label="Clear search"

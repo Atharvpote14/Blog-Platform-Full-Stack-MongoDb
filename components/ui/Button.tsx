@@ -80,6 +80,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
+        suppressHydrationWarning
         disabled={disabled || loading}
         className={classes}
         {...props}

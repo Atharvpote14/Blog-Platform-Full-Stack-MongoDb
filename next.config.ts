@@ -3,8 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      { protocol: "http", hostname: "localhost", port: "*" },
-      { protocol: "http", hostname: "127.0.0.1", port: "*" },
+      { protocol: "http", hostname: "localhost" },
+      { protocol: "http", hostname: "127.0.0.1" },
       { protocol: "https", hostname: "res.cloudinary.com" },
     ],
   },

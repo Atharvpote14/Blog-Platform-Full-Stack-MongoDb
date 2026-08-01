@@ -53,6 +53,7 @@ export function Pagination({
           </span>
         ) : (
           <button
+            suppressHydrationWarning
             key={page}
             onClick={() => onPageChange(page)}
             aria-current={page === currentPage ? "page" : undefined}
@@ -100,6 +101,7 @@ function PageButton({
 }) {
   return (
     <button
+      suppressHydrationWarning
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}

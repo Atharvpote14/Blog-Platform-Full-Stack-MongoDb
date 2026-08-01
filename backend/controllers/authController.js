@@ -103,6 +103,13 @@ const logout = async (req, res, next) => {
 
 const getMe = async (req, res, next) => {
   try {
+    if (!req.user) {
+      return res.status(200).json({
+        success: true,
+        data: null,
+      });
+    }
+
     const user = await User.findById(req.user._id);
 
     res.status(200).json({

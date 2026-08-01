@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { CalendarDays, Camera, LogOut, Trash2 } from "lucide-react";
+import { CalendarDays, Camera, Loader2, LogOut, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -38,8 +38,8 @@ export default function ProfilePage() {
   const router = useRouter();
   const [myBlogs, setMyBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>("");
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -73,29 +73,45 @@ export default function ProfilePage() {
     }
   }, [user, reset, loadBlogs]);
 
-  const handleAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = "";
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       toast.error("Please select an image file");
       return;
     }
-    setAvatarFile(file);
-    setAvatarPreview(URL.createObjectURL(file));
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be smaller than 5MB");
+      return;
+    }
+    const previewUrl = URL.createObjectURL(file);
+    setAvatarPreview(previewUrl);
+    setAvatarUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("name", user?.name ?? "");
+      formData.append("email", user?.email ?? "");
+      formData.append("avatar", file);
+      const updated = await usersApi.updateProfile(formData);
+      setUser(updated);
+      setAvatarPreview("");
+      toast.success("Profile photo updated");
+    } catch (error) {
+      setAvatarPreview("");
+      toast.error(getErrorMessage(error));
+    } finally {
+      setAvatarUploading(false);
+      URL.revokeObjectURL(previewUrl);
+    }
   };
 
   const onSubmit = async (values: ProfileFormValues) => {
     try {
-      let payload: FormData | { name: string; email: string };
-      if (avatarFile) {
-        payload = new FormData();
-        payload.append("name", values.name);
-        payload.append("email", values.email);
-        payload.append("avatar", avatarFile);
-      } else {
-        payload = { name: values.name, email: values.email };
-      }
-      const updated = await usersApi.updateProfile(payload);
+      const updated = await usersApi.updateProfile({
+        name: values.name,
+        email: values.email,
+      });
       setUser(updated);
       toast.success("Profile updated successfully");
     } catch (error) {
@@ -150,10 +166,15 @@ export default function ProfilePage() {
             />
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full gradient-bg text-white shadow-glow transition-transform hover:scale-110"
+              disabled={avatarUploading}
+              className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full gradient-bg text-white shadow-glow transition-transform hover:scale-110 disabled:cursor-not-allowed disabled:opacity-70"
               aria-label="Change avatar"
             >
-              <Camera className="h-4 w-4" />
+              {avatarUploading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Camera className="h-4 w-4" />
+              )}
             </button>
             <input
               ref={fileInputRef}

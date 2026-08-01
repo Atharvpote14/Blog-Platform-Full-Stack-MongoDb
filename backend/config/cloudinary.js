@@ -29,9 +29,11 @@ const configureCloudinary = () => {
   console.log('Cloudinary configured successfully');
 };
 
+const toForwardSlashPath = (filePath) => (filePath ? filePath.replace(/\\/g, '/') : filePath);
+
 const uploadToCloudinary = async (filePath, folder = 'blogsphere') => {
   if (!isCloudinaryConfigured()) {
-    return filePath;
+    return toForwardSlashPath(filePath);
   }
 
   try {
@@ -47,7 +49,7 @@ const uploadToCloudinary = async (filePath, folder = 'blogsphere') => {
     return result.secure_url;
   } catch (error) {
     console.error(`Cloudinary upload failed: ${error.message}`);
-    return filePath;
+    return toForwardSlashPath(filePath);
   }
 };
 

@@ -112,7 +112,7 @@ export default function DashboardPage() {
         <div className="mt-5">
           <Button
             href="/create-blog"
-            className="!bg-white !text-primary hover:!shadow-xl"
+            className="!bg-none !bg-white !text-primary hover:!shadow-xl"
           >
             <Plus className="h-4 w-4" />
             Write a new post

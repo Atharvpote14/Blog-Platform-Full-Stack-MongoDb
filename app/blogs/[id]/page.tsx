@@ -5,7 +5,10 @@ import {
   ArrowLeft,
   CalendarDays,
   Clock,
+  Lock,
+  PenLine,
   Share2,
+  Trash2,
   UserRound,
 } from "lucide-react";
 import Image from "next/image";
@@ -13,12 +16,14 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { CommentSection } from "@/components/CommentSection";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/Loading";
 import { LikeButton } from "@/components/LikeButton";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { useAuth } from "@/hooks/useAuth";
 import { resolveImageUrl } from "@/lib/images";
 import { blogsApi } from "@/services/blogs";
 import type { Blog } from "@/types";
@@ -27,9 +32,12 @@ import { formatDate, getErrorMessage, readingTime } from "@/utils/format";
 export default function BlogDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+  const { user } = useAuth();
   const [blog, setBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -63,6 +71,21 @@ export default function BlogDetailPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!blog) return;
+    setDeleting(true);
+    try {
+      await blogsApi.deleteBlog(blog._id);
+      toast.success("Blog deleted successfully");
+      router.push("/blogs");
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    } finally {
+      setDeleting(false);
+      setConfirmOpen(false);
+    }
+  };
+
   if (loading) return <BlogDetailSkeleton />;
 
   if (notFound || !blog) {
@@ -70,7 +93,7 @@ export default function BlogDetailPage() {
       <div className="mx-auto max-w-3xl px-4 py-16">
         <EmptyState
           title="Blog not found"
-          description="This post may have been deleted or the link is incorrect."
+          description="This post may have been deleted, set to private, or the link is incorrect."
           actionLabel="Back to Blogs"
           actionHref="/blogs"
         />
@@ -78,6 +101,11 @@ export default function BlogDetailPage() {
     );
   }
 
+  const isAuthor =
+    !!user &&
+    (typeof blog.author === "string"
+      ? blog.author === user._id
+      : blog.author._id === user._id);
   const authorName =
     typeof blog.author === "string" ? "Unknown Author" : blog.author.name;
   const authorAvatar =
@@ -98,6 +126,12 @@ export default function BlogDetailPage() {
 
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <Badge gradient>{blog.category}</Badge>
+        {blog.visibility === "private" && (
+          <Badge className="border-warning/40 bg-warning/10 text-warning">
+            <Lock className="h-3 w-3" />
+            Private
+          </Badge>
+        )}
         <span className="flex items-center gap-1.5 text-sm text-muted">
           <CalendarDays className="h-4 w-4" />
           {formatDate(blog.createdAt)}
@@ -125,7 +159,28 @@ export default function BlogDetailPage() {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {isAuthor && (
+            <>
+              <Button
+                href={`/edit-blog/${blog._id}`}
+                variant="secondary"
+                size="md"
+              >
+                <PenLine className="h-4 w-4" />
+                Edit
+              </Button>
+              <Button
+                variant="ghost"
+                size="md"
+                className="!text-danger hover:!bg-danger/10"
+                onClick={() => setConfirmOpen(true)}
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </Button>
+            </>
+          )}
           <LikeButton blogId={blog._id} initialLikes={blog.likes} />
           <Button variant="secondary" size="md" onClick={handleShare} aria-label="Share this post">
             <Share2 className="h-4 w-4" />
@@ -156,6 +211,15 @@ export default function BlogDetailPage() {
       </div>
 
       <CommentSection blogId={blog._id} initialComments={blog.comments} />
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Delete this post?"
+        description="This will permanently delete the blog and all its comments. This action cannot be undone."
+        loading={deleting}
+        onConfirm={handleDelete}
+        onClose={() => setConfirmOpen(false)}
+      />
     </motion.article>
   );
 }

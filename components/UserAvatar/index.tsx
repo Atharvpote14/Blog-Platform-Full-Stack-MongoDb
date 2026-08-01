@@ -24,19 +24,27 @@ export function UserAvatar({
   className,
 }: UserAvatarProps) {
   const src = resolveImageUrl(avatar);
+  const isLocalPreview = /^(blob|data):/i.test(src);
 
   if (src) {
+    const imgClass = cn(
+      "shrink-0 rounded-full object-cover ring-2 ring-primary/30",
+      sizes[size],
+      className
+    );
+
+    if (isLocalPreview) {
+      // eslint-disable-next-line @next/next/no-img-element
+      return <img src={src} alt={`${name}'s avatar`} className={imgClass} />;
+    }
+
     return (
       <Image
         src={src}
         alt={`${name}'s avatar`}
         width={96}
         height={96}
-        className={cn(
-          "shrink-0 rounded-full object-cover ring-2 ring-primary/30",
-          sizes[size],
-          className
-        )}
+        className={imgClass}
       />
     );
   }

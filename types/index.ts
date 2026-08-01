@@ -19,11 +19,14 @@ export interface Comment {
   updatedAt: string;
 }
 
+export type Visibility = "public" | "private";
+
 export interface Blog {
   _id: string;
   title: string;
   content: string;
   category: string;
+  visibility: Visibility;
   coverImage: string;
   author: User | string;
   likes: string[];
@@ -58,6 +61,8 @@ export interface GetBlogsParams {
   sort?: "latest" | "oldest" | "popular";
   page?: number;
   limit?: number;
+  author?: string;
+  visibility?: Visibility;
 }
 
 export interface RegisterPayload {

@@ -5,6 +5,7 @@ import {
   FilePenLine,
   Home,
   LayoutDashboard,
+  Lock,
   LogOut,
   UserRound,
 } from "lucide-react";
@@ -16,6 +17,7 @@ import { cn } from "@/utils/cn";
 const items = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Create Post", href: "/create-blog", icon: FilePenLine },
+  { label: "My Blogs", href: "/blogs?view=mine", icon: Lock },
   { label: "Profile", href: "/profile", icon: UserRound },
   { label: "Browse Blogs", href: "/blogs", icon: Home },
 ];
@@ -48,6 +50,7 @@ export function Sidebar({ active }: { active: string }) {
             const isActive = active === item.href;
             return (
               <button
+                suppressHydrationWarning
                 key={item.href}
                 onClick={() => router.push(item.href)}
                 className={cn(
@@ -83,6 +86,7 @@ export function Sidebar({ active }: { active: string }) {
         </div>
 
         <button
+          suppressHydrationWarning
           onClick={handleLogout}
           className="mt-3 flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-danger transition-colors hover:bg-danger/10"
         >

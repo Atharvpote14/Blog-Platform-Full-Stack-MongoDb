@@ -118,6 +118,7 @@ export function Navbar() {
             </div>
           )}
           <button
+            suppressHydrationWarning
             className="flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-card text-foreground md:hidden"
             onClick={() => setDrawerOpen((prev) => !prev)}
             aria-label={drawerOpen ? "Close navigation menu" : "Open navigation menu"}
@@ -159,6 +160,7 @@ export function Navbar() {
                   </span>
                 </span>
                 <button
+                  suppressHydrationWarning
                   onClick={() => setDrawerOpen(false)}
                   className="flex h-8 w-8 items-center justify-center rounded-lg border border-line"
                   aria-label="Close menu"

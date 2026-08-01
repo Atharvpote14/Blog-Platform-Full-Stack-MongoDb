@@ -25,7 +25,7 @@ export function CTA() {
             <Button
               href="/register"
               size="lg"
-              className="!bg-white !text-primary shadow-lg hover:!shadow-xl"
+              className="!bg-none !bg-white !text-primary shadow-lg hover:!shadow-xl"
             >
               Create Your Account
               <ArrowRight className="h-4.5 w-4.5" />

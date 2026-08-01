@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CalendarDays, Heart } from "lucide-react";
+import { CalendarDays, Heart, Lock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -44,8 +44,14 @@ export function BlogCard({ blog, index = 0 }: { blog: Blog; index?: number }) {
             </span>
           </div>
         )}
-        <div className="absolute left-3 top-3">
+        <div className="absolute left-3 top-3 flex items-center gap-2">
           <Badge gradient>{blog.category}</Badge>
+          {blog.visibility === "private" && (
+            <Badge className="border-white/30 bg-black/50 text-white backdrop-blur">
+              <Lock className="h-3 w-3" />
+              Private
+            </Badge>
+          )}
         </div>
       </Link>
 

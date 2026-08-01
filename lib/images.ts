@@ -6,6 +6,8 @@ export function apiOrigin(): string {
 
 export function resolveImageUrl(src?: string | null): string {
   if (!src) return "";
-  if (/^(https?:)?\/\//.test(src)) return src;
-  return `${apiOrigin()}/${src.replace(/^\/+/, "")}`;
+  const normalized = src.replace(/\\/g, "/");
+  if (/^(https?:)?\/\//.test(normalized)) return normalized;
+  if (/^(blob|data):/i.test(normalized)) return normalized;
+  return `${apiOrigin()}/${normalized.replace(/^\/+/, "")}`;
 }

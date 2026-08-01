@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, FilePenLine, LayoutDashboard, LogOut, UserRound } from "lucide-react";
+import { ChevronDown, FilePenLine, LayoutDashboard, Lock, LogOut, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import { cn } from "@/utils/cn";
 const menuItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Create Post", href: "/create-blog", icon: FilePenLine },
+  { label: "My Blogs", href: "/blogs?view=mine", icon: Lock },
   { label: "Profile", href: "/profile", icon: UserRound },
 ];
 
@@ -45,6 +46,7 @@ export function UserMenu() {
   return (
     <div className="relative" ref={ref}>
       <button
+        suppressHydrationWarning
         onClick={() => setOpen((prev) => !prev)}
         className="flex items-center gap-2 rounded-full p-1 transition-colors hover:bg-card"
         aria-label="Open user menu"
@@ -79,6 +81,7 @@ export function UserMenu() {
             <div className="mb-1 h-px bg-line" />
             {menuItems.map((item) => (
               <button
+                suppressHydrationWarning
                 key={item.href}
                 onClick={() => {
                   setOpen(false);
@@ -93,6 +96,7 @@ export function UserMenu() {
             ))}
             <div className="my-1 h-px bg-line" />
             <button
+              suppressHydrationWarning
               onClick={handleLogout}
               disabled={loggingOut}
               className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-danger transition-colors hover:bg-danger/10 disabled:opacity-60"

@@ -8,7 +8,7 @@ const {
   likeBlog,
   createComment,
 } = require('../controllers/blogController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, optional } = require('../middleware/authMiddleware');
 const validate = require('../middleware/validateMiddleware');
 const { body } = require('express-validator');
 const multer = require('multer');
@@ -46,8 +46,8 @@ const upload = multer({
 
 const router = express.Router();
 
-router.get('/', getBlogs);
-router.get('/:id', getBlogById);
+router.get('/', optional, getBlogs);
+router.get('/:id', optional, getBlogById);
 
 router.post(
   '/',
@@ -66,6 +66,10 @@ router.post(
       .isLength({ min: 10 })
       .withMessage('Content must be at least 10 characters'),
     body('category').trim().notEmpty().withMessage('Category is required'),
+    body('visibility')
+      .optional()
+      .isIn(['public', 'private'])
+      .withMessage('Visibility must be public or private'),
   ],
   validate,
   createBlog
@@ -86,6 +90,10 @@ router.put(
       .isLength({ min: 10 })
       .withMessage('Content must be at least 10 characters'),
     body('category').optional().trim(),
+    body('visibility')
+      .optional()
+      .isIn(['public', 'private'])
+      .withMessage('Visibility must be public or private'),
   ],
   validate,
   updateBlog

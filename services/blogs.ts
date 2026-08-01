@@ -53,14 +53,14 @@ export const blogsApi = {
     const pages = Math.ceil(limit / 50);
     const collected: Blog[] = [];
     for (let page = 1; page <= pages; page++) {
-      const res = await this.getBlogs({ page, limit: 50, sort: "latest" });
-      collected.push(
-        ...res.data.filter(
-          (blog) =>
-            (typeof blog.author === "string" ? blog.author : blog.author._id) ===
-            userId
-        )
-      );
+      const res = await this.getBlogs({
+        page,
+        limit: 50,
+        sort: "latest",
+        author: userId,
+      });
+      collected.push(...res.data);
+      if (collected.length >= res.total) break;
     }
     return collected.slice(0, limit);
   },

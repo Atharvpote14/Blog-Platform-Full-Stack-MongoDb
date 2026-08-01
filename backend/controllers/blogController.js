@@ -2,9 +2,47 @@ const Blog = require('../models/Blog');
 const Comment = require('../models/Comment');
 const { uploadToCloudinary } = require('../config/cloudinary');
 
+const LIMITS = {
+  title: { min: 3, max: 200 },
+  category: { min: 1, max: 50 },
+  content: { min: 10, maxChars: 50000, maxWords: 10000 },
+};
+
+const countWords = (value) =>
+  value.trim() ? value.trim().split(/\s+/).length : 0;
+
+const validateBlogInput = ({ title, content, category }) => {
+  const errors = [];
+
+  if (!title || title.trim().length < LIMITS.title.min || title.trim().length > LIMITS.title.max) {
+    errors.push(`Title must be between ${LIMITS.title.min} and ${LIMITS.title.max} characters`);
+  }
+
+  if (!category || category.trim().length < LIMITS.category.min || category.trim().length > LIMITS.category.max) {
+    errors.push(`Category must be between ${LIMITS.category.min} and ${LIMITS.category.max} characters`);
+  }
+
+  if (!content || content.trim().length < LIMITS.content.min || content.trim().length > LIMITS.content.maxChars) {
+    errors.push(`Content must be between ${LIMITS.content.min} and ${LIMITS.content.maxChars.toLocaleString('en-US')} characters`);
+  } else if (countWords(content) > LIMITS.content.maxWords) {
+    errors.push(`Content must not exceed ${LIMITS.content.maxWords.toLocaleString('en-US')} words`);
+  }
+
+  return errors;
+};
+
 const createBlog = async (req, res, next) => {
   try {
-    const { title, content, category } = req.body;
+    const { title, content, category, visibility = 'public' } = req.body;
+
+    const validationErrors = validateBlogInput({ title, content, category });
+    if (validationErrors.length) {
+      return res.status(400).json({
+        success: false,
+        message: validationErrors.join('. '),
+      });
+    }
+
     const coverImage = req.file
       ? await uploadToCloudinary(req.file.path, 'blogsphere/covers')
       : '';
@@ -13,6 +51,7 @@ const createBlog = async (req, res, next) => {
       title,
       content,
       category,
+      visibility,
       coverImage,
       author: req.user._id,
     });
@@ -37,9 +76,41 @@ const getBlogs = async (req, res, next) => {
       sort,
       page = 1,
       limit = 10,
+      author,
+      visibility,
     } = req.query;
 
     const query = {};
+
+    const isOwnAuthor =
+      author &&
+      req.user &&
+      author.toString() === req.user._id.toString();
+
+    if (visibility === 'private') {
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          message: 'Not authorized, please log in',
+        });
+      }
+      if (author && !isOwnAuthor) {
+        return res.status(403).json({
+          success: false,
+          message: 'Not authorized to view private posts',
+        });
+      }
+      query.author = req.user._id;
+      query.visibility = 'private';
+    } else if (isOwnAuthor) {
+      query.author = req.user._id;
+      if (visibility) query.visibility = visibility;
+    } else if (author) {
+      query.author = author;
+      query.visibility = 'public';
+    } else {
+      query.visibility = visibility || 'public';
+    }
 
     if (search) {
       query.$or = [
@@ -108,6 +179,18 @@ const getBlogById = async (req, res, next) => {
       });
     }
 
+    const authorId = blog.author._id || blog.author;
+
+    if (
+      blog.visibility === 'private' &&
+      (!req.user || !authorId.equals(req.user._id))
+    ) {
+      return res.status(404).json({
+        success: false,
+        message: 'Blog not found',
+      });
+    }
+
     res.status(200).json({
       success: true,
       data: blog,
@@ -135,12 +218,26 @@ const updateBlog = async (req, res, next) => {
       });
     }
 
-    const { title, content, category } = req.body;
+    const { title, content, category, visibility } = req.body;
+
+    const validationErrors = validateBlogInput({
+      title: title ?? blog.title,
+      content: content ?? blog.content,
+      category: category ?? blog.category,
+    });
+    if (validationErrors.length) {
+      return res.status(400).json({
+        success: false,
+        message: validationErrors.join('. '),
+      });
+    }
+
     const updateData = {};
 
     if (title) updateData.title = title;
     if (content) updateData.content = content;
     if (category) updateData.category = category;
+    if (visibility) updateData.visibility = visibility;
     if (req.file) updateData.coverImage = await uploadToCloudinary(req.file.path, 'blogsphere/covers');
 
     const updatedBlog = await Blog.findByIdAndUpdate(

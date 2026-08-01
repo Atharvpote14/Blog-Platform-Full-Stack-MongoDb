@@ -159,6 +159,7 @@ export function CommentSection({ blogId, initialComments = [] }: CommentSectionP
                     </div>
                     {isOwn && (
                       <button
+                        suppressHydrationWarning
                         onClick={() => setDeleteTarget(comment)}
                         className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-danger/10 hover:text-danger"
                         aria-label="Delete comment"
