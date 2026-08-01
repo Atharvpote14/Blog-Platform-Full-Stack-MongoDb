@@ -22,6 +22,11 @@ export const metadata: Metadata = {
   },
   description:
     "A premium blogging platform for writers. Publish beautiful posts, engage your audience, and let your voice be heard.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
