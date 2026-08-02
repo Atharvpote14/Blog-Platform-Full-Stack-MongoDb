@@ -1,5 +1,6 @@
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
+const path = require('path');
 
 const isCloudinaryConfigured = () => {
   return (
@@ -29,27 +30,41 @@ const configureCloudinary = () => {
   console.log('Cloudinary configured successfully');
 };
 
-const toForwardSlashPath = (filePath) => (filePath ? filePath.replace(/\\/g, '/') : filePath);
+const uploadBufferToCloudinary = (buffer, folder) =>
+  new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: 'auto' },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result.secure_url);
+      }
+    );
+    stream.end(buffer);
+  });
 
-const uploadToCloudinary = async (filePath, folder = 'blogsphere') => {
+const saveBufferLocally = (buffer, originalname) => {
+  const dir = path.join(__dirname, '..', 'uploads');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  const ext = originalname ? path.extname(originalname) : '';
+  const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+  fs.writeFileSync(path.join(dir, filename), buffer);
+  return `uploads/${filename}`;
+};
+
+const uploadToCloudinary = async (buffer, options = {}) => {
+  const folder = options.folder || 'blogsphere';
+
   if (!isCloudinaryConfigured()) {
-    return toForwardSlashPath(filePath);
+    return saveBufferLocally(buffer, options.originalname);
   }
 
   try {
-    const result = await cloudinary.uploader.upload(filePath, {
-      folder,
-      resource_type: 'auto',
-    });
-
-    if (filePath && fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
-
-    return result.secure_url;
+    return await uploadBufferToCloudinary(buffer, folder);
   } catch (error) {
     console.error(`Cloudinary upload failed: ${error.message}`);
-    return toForwardSlashPath(filePath);
+    return saveBufferLocally(buffer, options.originalname);
   }
 };
 

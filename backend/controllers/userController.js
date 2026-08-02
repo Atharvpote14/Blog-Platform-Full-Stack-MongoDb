@@ -23,7 +23,7 @@ const updateProfile = async (req, res, next) => {
 
     if (name) updateData.name = name;
     if (email) updateData.email = email;
-    if (req.file) updateData.avatar = await uploadToCloudinary(req.file.path, 'blogsphere/avatars');
+    if (req.file) updateData.avatar = await uploadToCloudinary(req.file.buffer, { folder: 'blogsphere/avatars', originalname: req.file.originalname });
 
     const user = await User.findByIdAndUpdate(req.user._id, updateData, {
       new: true,

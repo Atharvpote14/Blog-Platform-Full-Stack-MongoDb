@@ -44,7 +44,10 @@ const createBlog = async (req, res, next) => {
     }
 
     const coverImage = req.file
-      ? await uploadToCloudinary(req.file.path, 'blogsphere/covers')
+      ? await uploadToCloudinary(req.file.buffer, {
+          folder: 'blogsphere/covers',
+          originalname: req.file.originalname,
+        })
       : '';
 
     const blog = await Blog.create({
@@ -238,7 +241,7 @@ const updateBlog = async (req, res, next) => {
     if (content) updateData.content = content;
     if (category) updateData.category = category;
     if (visibility) updateData.visibility = visibility;
-    if (req.file) updateData.coverImage = await uploadToCloudinary(req.file.path, 'blogsphere/covers');
+    if (req.file) updateData.coverImage = await uploadToCloudinary(req.file.buffer, { folder: 'blogsphere/covers', originalname: req.file.originalname });
 
     const updatedBlog = await Blog.findByIdAndUpdate(
       req.params.id,

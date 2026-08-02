@@ -16,6 +16,10 @@
       "destination": { "service": "api" }
     },
     {
+      "source": "/uploads/(.*)",
+      "destination": { "service": "api" }
+    },
+    {
       "source": "/(.*)",
       "destination": { "service": "web" }
     }
