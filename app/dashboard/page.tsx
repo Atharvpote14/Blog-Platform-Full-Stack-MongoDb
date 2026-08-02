@@ -49,8 +49,8 @@ export default function DashboardPage() {
         blogsApi.getBlogs({ limit: 1 }),
       ]);
       setMyBlogs(mine);
-      setRecentBlogs(recent.data);
-      setPlatformTotal(platform.total);
+      setRecentBlogs(Array.isArray(recent.data) ? recent.data : []);
+      setPlatformTotal(platform.total ?? 0);
     } catch (error) {
       toast.error(getErrorMessage(error));
     } finally {

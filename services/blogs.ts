@@ -59,6 +59,7 @@ export const blogsApi = {
         sort: "latest",
         author: userId,
       });
+      if (!Array.isArray(res.data)) break;
       collected.push(...res.data);
       if (collected.length >= res.total) break;
     }

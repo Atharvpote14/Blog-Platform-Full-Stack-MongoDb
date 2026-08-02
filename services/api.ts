@@ -1,7 +1,8 @@
 import axios from "axios";
 import type { AxiosError } from "axios";
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api";
 
 export const SESSION_EXPIRED_EVENT = "blogsphere:session-expired";
 
