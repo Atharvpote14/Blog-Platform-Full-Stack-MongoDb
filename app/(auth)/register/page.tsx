@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { useAuth } from "@/hooks/useAuth";
 import { getErrorMessage } from "@/utils/format";
 
@@ -106,6 +107,16 @@ export default function RegisterPage() {
           {isSubmitting ? "Creating account…" : "Create Account"}
         </Button>
       </form>
+
+      <div className="my-6 flex items-center gap-3">
+        <div className="h-px flex-1 bg-line" />
+        <span className="text-xs font-medium uppercase tracking-wider text-muted">
+          or sign up with
+        </span>
+        <div className="h-px flex-1 bg-line" />
+      </div>
+
+      <GoogleSignInButton label="Sign up with Google" />
 
       <p className="mt-6 text-center text-sm text-muted">
         Already have an account?{" "}

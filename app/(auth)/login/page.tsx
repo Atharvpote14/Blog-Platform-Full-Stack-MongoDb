@@ -4,13 +4,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Lock, Mail } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { useAuth } from "@/hooks/useAuth";
 import { getErrorMessage } from "@/utils/format";
 
@@ -24,6 +25,18 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const { user, loading, login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error === "oauth_failed") {
+      toast.error("Google sign-in failed. Please try again.");
+      router.replace("/login");
+    } else if (error === "email_not_verified") {
+      toast.error("Your Google email is not verified.");
+      router.replace("/login");
+    }
+  }, [searchParams, router]);
 
   const {
     register,
@@ -93,6 +106,16 @@ export default function LoginPage() {
           {isSubmitting ? "Logging in…" : "Login"}
         </Button>
       </form>
+
+      <div className="my-6 flex items-center gap-3">
+        <div className="h-px flex-1 bg-line" />
+        <span className="text-xs font-medium uppercase tracking-wider text-muted">
+          or continue with
+        </span>
+        <div className="h-px flex-1 bg-line" />
+      </div>
+
+      <GoogleSignInButton />
 
       <p className="mt-6 text-center text-sm text-muted">
         Don&apos;t have an account?{" "}

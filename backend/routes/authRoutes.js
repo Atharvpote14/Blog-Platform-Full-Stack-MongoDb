@@ -1,10 +1,14 @@
 const express = require('express');
 const { body } = require('express-validator');
 const { register, login, logout, getMe } = require('../controllers/authController');
+const { googleAuth, googleCallback } = require('../controllers/googleAuthController');
 const { optional } = require('../middleware/authMiddleware');
 const validate = require('../middleware/validateMiddleware');
 
 const router = express.Router();
+
+router.get('/google', googleAuth);
+router.get('/google/callback', googleCallback);
 
 router.post(
   '/register',
