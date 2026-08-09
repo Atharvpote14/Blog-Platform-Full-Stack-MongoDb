@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const { body } = require('express-validator');
 const { getProfile, updateProfile, deleteProfile } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
