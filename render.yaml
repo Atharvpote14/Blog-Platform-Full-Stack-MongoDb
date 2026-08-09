@@ -3,6 +3,7 @@ services:
     name: blogsphere-backend
     runtime: node
     rootDir: backend
+    plan: free
     buildCommand: npm install
     startCommand: node server.js
     healthCheckPath: /api/health
