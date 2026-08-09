@@ -46,7 +46,10 @@ const limiter = rateLimit({
   },
 });
 
-app.use('/api', limiter);
+app.use('/api', (req, res, next) => {
+  if (req.path === '/health') return next();
+  return limiter(req, res, next);
+});
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
